@@ -42,6 +42,7 @@ namespace PluginDeMo_v2.F1_2023
         public bool OnTrack => LapData.m_driverStatus == 4;
 
         // participant pace
+        public const int AVERAGE_LAP_NUM_LAPS = 3; // number of laps to average for average lap time
         public uint BestLapTime =>
             PacketSessionHistoryData
                 .m_lapHistoryData[PacketSessionHistoryData.m_bestLapTimeLapNum - 1]
@@ -50,7 +51,7 @@ namespace PluginDeMo_v2.F1_2023
         public uint LastThreeLapAverageLapTime { get; set; } = 0; // average of last 3 laps in ms
         public string LastThreeLapAverageLapTimeFormatted =>
             Utility.SecondsToTimeString(LastThreeLapAverageLapTime / 1000f, @"m\:ss\.fff");
-        public int AverageLapCalculatedAsOfLap { get; set; } = 0; // lap number when average lap was last calculated
+        public int AverageLapLastCalculatedOnLap { get; set; } = 0; // lap number when average lap was last calculated
         public uint DeltaToLeader => LapData.m_deltaToRaceLeaderInMS;
         public float DeltaToLeaderInSeconds => DeltaToLeader / 1000f;
 
@@ -120,21 +121,23 @@ namespace PluginDeMo_v2.F1_2023
                 PacketSessionHistoryData.m_lapHistoryData[CurrentLapNumber - 2].m_lapTimeInMS != 0;
             bool currentLapNotCompleted =
                 PacketSessionHistoryData.m_lapHistoryData[CurrentLapNumber - 1].m_lapTimeInMS == 0;
-            bool OutOfDateAverageLap = CurrentLapNumber != AverageLapCalculatedAsOfLap; // if the average lap is out of date
-            if (previousLapCompleted && currentLapNotCompleted && OutOfDateAverageLap)
+            bool outOfDateAverageLap = CurrentLapNumber > AverageLapLastCalculatedOnLap; // if the average lap is out of date
+            if (previousLapCompleted && currentLapNotCompleted && outOfDateAverageLap)
             {
-                UpdateLastThreeLapAverageLapTime();
-                AverageLapCalculatedAsOfLap = CurrentLapNumber;
+                UpdateAverageLapTime(AVERAGE_LAP_NUM_LAPS);
+                AverageLapLastCalculatedOnLap = CurrentLapNumber;
             }
         }
 
         ///// ATTRIBUTE UPDATES /////
 
-        public void UpdateLastThreeLapAverageLapTime()
+        public void UpdateAverageLapTime(int numPreviousLaps)
         {
-            // update last 3 average lap time
             List<int> lapTimes = new List<int>();
-            for (int i = Math.Max(0, CurrentLapNumber - 3); i < CurrentLapNumber - 1; i++)
+            int endIndex = CurrentLapNumber - 1; // < end index is exclusive
+            int startLap = Math.Max(0, endIndex - numPreviousLaps);
+
+            for (int i = startLap; i < endIndex; i++)
             {
                 uint lapTime = PacketSessionHistoryData.m_lapHistoryData[i].m_lapTimeInMS;
                 // ignoring laps that are slower than best lap + 10% for accuracy sake

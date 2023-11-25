@@ -243,6 +243,7 @@ namespace PluginDeMo_v2.F1_2023
                         suffix: "Position",
                         pluginType: typeof(byte),
                         valueFunc: () =>
+                        // needs to be a loop because Participant names aren't always known, espically at the start of the plugin
                         {
                             foreach (Participant participant in Participant.Session.Participants)
                             {
