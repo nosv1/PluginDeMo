@@ -155,7 +155,7 @@ namespace PluginDeMo_v2.F1_2023
                     pluginManager: pluginManager,
                     prefix: namePrefix,
                     suffix: "TimeLeft",
-                    pluginType: typeof(int),
+                    pluginType: typeof(string),
                     valueFunc: () => TimeLeftFormatted,
                     updateRate: 1000
                 )
