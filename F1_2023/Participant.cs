@@ -27,11 +27,11 @@ namespace PluginDeMo_v2.F1_2023
         public TyreSet PreviousTyreSet { get; set; }
         public Fuel Fuel { get; set; }
         public string Name => Utility.GetStringFromCharArray(ParticipantData.m_name);
-        public string AbbreviatedName => Name.Substring(0, 3).ToUpper(); // Hamilton -> HAM
+        public string AbbreviatedName => Name.Substring(0, Math.Min(Name.Length, 3)).ToUpper(); // Hamilton -> HAM
 
         // participant status
         public int CurrentLapNumber { get; set; }
-        public byte Position => LapData.m_carPosition;
+        public byte Position => (byte)Math.Max(1, (int)LapData.m_carPosition);
         public byte NumPitStops => LapData.m_numPitStops;
         public byte PenaltiesInSeconds => LapData.m_penalties; // accumulated time penalties in seconds to be added
         public bool IsPitting => LapData.m_pitStatus >= 1; // 0 = none, 1 = pitting, 2 = in pit area
@@ -182,87 +182,19 @@ namespace PluginDeMo_v2.F1_2023
         }
 
         ///// PROPERTIES /////
-
         public void UpdateProperties(bool isPlayer = false)
         {
+            string namePrefix = Utility.ParticipantPrefix(isPlayer, Position);
             foreach (Property<object> property in Properties)
-                property.Update(isPlayer);
+            {
+                // match the existing property name and replace the prefix
+                property.Prefix = namePrefix;
+                property.Update();
+            }
 
             if (isPlayer)
                 UpdateProperties(isPlayer: false);
         }
-
-        // public void PropertiesUpdate(PluginManager pluginManager, bool isPlayer)
-        // {
-        //     string namePrefix = Utility.ParticipantPrefix(isPlayer, (int)Position);
-
-        //     // participant name
-        //     string participantName = Utility.GetStringFromCharArray(ParticipantData.m_name);
-        //     pluginManager.SetPropertyValue(
-        //         $"{namePrefix}Name",
-        //         participantName.GetType(),
-        //         participantName
-        //     );
-        //     pluginManager.SetPropertyValue(
-        //         $"{namePrefix}AbbreviatedName",
-        //         AbbreviatedName.GetType(),
-        //         AbbreviatedName
-        //     );
-
-        //     pluginManager.SetPropertyValue(
-        //         $"{namePrefix}CurrentLapNumber",
-        //         CurrentLapNumber.GetType(),
-        //         CurrentLapNumber
-        //     );
-
-        //     if (CurrentTyreSet != null)
-        //     {
-        //         pluginManager.SetPropertyValue(
-        //             $"{namePrefix}StintLap",
-        //             CurrentTyreSet.LapsSinceFitting.GetType(),
-        //             CurrentTyreSet.LapsSinceFitting
-        //         );
-        //         pluginManager.SetPropertyValue(
-        //             $"{namePrefix}ArtificialPredictedPitLap",
-        //             CurrentTyreSet.ArtificialPredictedPitLap.GetType(),
-        //             CurrentTyreSet.ArtificialPredictedPitLap
-        //         );
-        //         pluginManager.SetPropertyValue(
-        //             $"{namePrefix}VisualTyreName",
-        //             CurrentTyreSet.VisualTyreName.GetType(),
-        //             CurrentTyreSet.VisualTyreName
-        //         );
-        //     }
-
-        //     pluginManager.SetPropertyValue(
-        //         $"{namePrefix}AverageLapTime",
-        //         LastThreeLapAverageLapTimeFormatted.GetType(),
-        //         LastThreeLapAverageLapTimeFormatted
-        //     );
-        //     pluginManager.SetPropertyValue(
-        //         $"{namePrefix}DeltaToLeader",
-        //         DeltaToLeaderInSeconds.GetType(),
-        //         DeltaToLeaderInSeconds
-        //     );
-        //     pluginManager.SetPropertyValue(
-        //         $"{namePrefix}NumPitStops",
-        //         NumPitStops.GetType(),
-        //         NumPitStops
-        //     );
-        //     pluginManager.SetPropertyValue(
-        //         $"{namePrefix}PenaltiesInSeconds",
-        //         PenaltiesInSeconds.GetType(),
-        //         PenaltiesInSeconds
-        //     );
-        //     pluginManager.SetPropertyValue(
-        //         $"{namePrefix}IsPitting",
-        //         IsPitting.GetType(),
-        //         IsPitting
-        //     );
-
-        //     if (isPlayer)
-        //         PropertiesUpdate(pluginManager, false);
-        // }
 
         public void AddProperties(PluginManager pluginManager, bool isPlayer, int index = -1)
         {
@@ -273,87 +205,110 @@ namespace PluginDeMo_v2.F1_2023
             {
                 new Property<object>( // participant name
                     pluginManager: pluginManager,
-                    name: $"{namePrefix}Name",
-                    valueFunc: () => Name,
+                    prefix: namePrefix,
+                    suffix: "Name",
+                    pluginType: typeof(string),
+                    valueFunc: () => Session.ParticipantsByPosition[Position - 1]?.Name,
                     updateRate: 5000
                 ),
                 new Property<object>( // abbreviated participant name
                     pluginManager: pluginManager,
-                    name: $"{namePrefix}AbbreviatedName",
-                    valueFunc: () => AbbreviatedName,
+                    prefix: namePrefix,
+                    suffix: "AbbreviatedName",
+                    pluginType: typeof(string),
+                    valueFunc: () => Session.ParticipantsByPosition[Position - 1]?.AbbreviatedName,
                     updateRate: 5000
                 ),
                 new Property<object>( // current lap number
                     pluginManager: pluginManager,
-                    name: $"{namePrefix}CurrentLapNumber",
-                    valueFunc: () => CurrentLapNumber,
+                    prefix: namePrefix,
+                    suffix: "CurrentLapNumber",
+                    pluginType: typeof(int),
+                    valueFunc: () => Session.ParticipantsByPosition[Position - 1]?.CurrentLapNumber,
                     updateRate: 1000
                 ),
                 new Property<object>( // stint lap
                     pluginManager: pluginManager,
-                    name: $"{namePrefix}StintLap",
-                    valueFunc: () => CurrentTyreSet?.LapsSinceFitting,
+                    prefix: namePrefix,
+                    suffix: "StintLap",
+                    pluginType: typeof(float),
+                    valueFunc: () =>
+                        Session
+                            .ParticipantsByPosition[Position - 1]
+                            ?.CurrentTyreSet
+                            ?.LapsSinceFitting,
                     updateRate: 1000
                 ),
                 new Property<object>( // artificial predicted pit lap
                     pluginManager: pluginManager,
-                    name: $"{namePrefix}ArtificialPredictedPitLap",
-                    valueFunc: () => CurrentTyreSet?.ArtificialPredictedPitLap,
+                    prefix: namePrefix,
+                    suffix: "ArtificialPredictedPitLap",
+                    pluginType: typeof(byte),
+                    valueFunc: () =>
+                        Session
+                            .ParticipantsByPosition[Position - 1]
+                            ?.CurrentTyreSet
+                            ?.ArtificialPredictedPitLap,
                     updateRate: 1000
                 ),
                 new Property<object>( // visual tyre name
                     pluginManager: pluginManager,
-                    name: $"{namePrefix}VisualTyreName",
-                    valueFunc: () => CurrentTyreSet?.VisualTyreName,
+                    prefix: namePrefix,
+                    suffix: "VisualTyreName",
+                    pluginType: typeof(string),
+                    valueFunc: () =>
+                        Session
+                            .ParticipantsByPosition[Position - 1]
+                            ?.CurrentTyreSet
+                            ?.VisualTyreName,
                     updateRate: 1000
                 ),
                 new Property<object>( // average lap time
                     pluginManager: pluginManager,
-                    name: $"{namePrefix}AverageLapTime",
-                    valueFunc: () => LastThreeLapAverageLapTimeFormatted,
+                    prefix: namePrefix,
+                    suffix: "AverageLapTime",
+                    pluginType: typeof(string),
+                    valueFunc: () =>
+                        Session
+                            .ParticipantsByPosition[Position - 1]
+                            ?.LastThreeLapAverageLapTimeFormatted,
                     updateRate: 1000
                 ),
                 new Property<object>( // delta to leader
                     pluginManager: pluginManager,
-                    name: $"{namePrefix}DeltaToLeader",
-                    valueFunc: () => DeltaToLeaderInSeconds,
-                    updateRate: 1000
+                    prefix: namePrefix,
+                    suffix: "DeltaToLeader",
+                    pluginType: typeof(float),
+                    valueFunc: () =>
+                        Session.ParticipantsByPosition[Position - 1]?.DeltaToLeaderInSeconds,
+                    updateRate: 500
                 ),
                 new Property<object>( // num pit stops
                     pluginManager: pluginManager,
-                    name: $"{namePrefix}NumPitStops",
-                    valueFunc: () => NumPitStops,
+                    prefix: namePrefix,
+                    suffix: "NumPitStops",
+                    pluginType: typeof(byte),
+                    valueFunc: () => Session.ParticipantsByPosition[Position - 1]?.NumPitStops,
                     updateRate: 1000
                 ),
                 new Property<object>( // penalties in seconds
                     pluginManager: pluginManager,
-                    name: $"{namePrefix}PenaltiesInSeconds",
-                    valueFunc: () => PenaltiesInSeconds,
+                    prefix: namePrefix,
+                    suffix: "PenaltiesInSeconds",
+                    pluginType: typeof(byte),
+                    valueFunc: () =>
+                        Session.ParticipantsByPosition[Position - 1]?.PenaltiesInSeconds,
                     updateRate: 1000
                 ),
                 new Property<object>( // is pitting
                     pluginManager: pluginManager,
-                    name: $"{namePrefix}IsPitting",
-                    valueFunc: () => IsPitting,
+                    prefix: namePrefix,
+                    suffix: "IsPitting",
+                    pluginType: typeof(bool),
+                    valueFunc: () => Session.ParticipantsByPosition[Position - 1]?.IsPitting,
                     updateRate: 1000
                 ),
             };
-
-            // pluginManager.AddProperty($"{namePrefix}Name", "".GetType(), "");
-            // pluginManager.AddProperty($"{namePrefix}AbbreviatedName", "".GetType(), "");
-            // pluginManager.AddProperty($"{namePrefix}CurrentLapNumber", ((int)1).GetType(), 0);
-            // pluginManager.AddProperty($"{namePrefix}StintLap", ((float)1).GetType(), 0); // tyre wear at latest pit lap
-            // pluginManager.AddProperty(
-            //     $"{namePrefix}ArtificialPredictedPitLap",
-            //     ((byte)1).GetType(),
-            //     0
-            // ); // tyre wear at latest pit lap
-            // pluginManager.AddProperty($"{namePrefix}VisualTyreName", "".GetType(), "");
-            // pluginManager.AddProperty($"{namePrefix}AverageLapTime", "".GetType(), "");
-            // pluginManager.AddProperty($"{namePrefix}DeltaToLeader", ((float)1).GetType(), 0);
-            // pluginManager.AddProperty($"{namePrefix}NumPitStops", ((byte)1).GetType(), 0);
-            // pluginManager.AddProperty($"{namePrefix}PenaltiesInSeconds", ((byte)1).GetType(), 0);
-            // pluginManager.AddProperty($"{namePrefix}IsPitting", true.GetType(), false);
         }
     }
 }

@@ -92,7 +92,7 @@ namespace PluginDeMo_v2
             SimHub.Logging.Current.Info("Starting Plugin de Mo 0.2.0");
 
             pluginManager.AddProperty(PropertyNames.PdM_Time, GetType(), "");
-            _ = new F1_2023.Session(pluginManager, 1);
+            _ = new F1_2023.Session(pluginManager, 10); // arbitrary number of participants, will be updated in data update, at the time of writing this, needs to be at least > number of rivals player has set
         }
     }
 }

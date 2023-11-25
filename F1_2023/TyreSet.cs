@@ -113,10 +113,10 @@ namespace PluginDeMo_v2.F1_2023
 
         public static string[] TyresArray = new string[]
         {
-            Tyres.FrontLeft,
-            Tyres.FrontRight,
             Tyres.RearLeft,
-            Tyres.RearRight
+            Tyres.RearRight,
+            Tyres.FrontLeft,
+            Tyres.FrontRight
         };
 
         // uint8       m_visualTyreCompound;       // F1 visual (can be different from actual compound)

@@ -18,6 +18,7 @@ namespace PluginDeMo_v2.F1_2023
         public Participant[] Participants { get; set; }
         public Participant[] ParticipantsByPosition { get; set; }
         public Player Player { get; set; }
+        public List<Property<object>> Properties { get; set; } = new List<Property<object>>();
 
         // session data
         public F12023_Packets.PacketSessionData PacketSessionData { get; set; } // 2 per second
@@ -33,11 +34,11 @@ namespace PluginDeMo_v2.F1_2023
         // uint8           m_sessionType;       // 0 = unknown, 1 = P1, 2 = P2, 3 = P3, 4 = Short P
         //                                      // 5 = Q1, 6 = Q2, 7 = Q3, 8 = Short Q, 9 = OSQ
         //                                      // 10 = R, 11 = R2, 12 = R3, 13 = Time Trial
-        public bool isPractice =>
+        public bool IsPractice =>
             PacketSessionData.m_sessionType >= 1 && PacketSessionData.m_sessionType <= 4;
-        public bool isQualifying =>
+        public bool IsQualifying =>
             PacketSessionData.m_sessionType >= 5 && PacketSessionData.m_sessionType <= 9;
-        public bool isRace =>
+        public bool IsRace =>
             PacketSessionData.m_sessionType >= 10 && PacketSessionData.m_sessionType <= 12;
 
         // session state
@@ -59,7 +60,7 @@ namespace PluginDeMo_v2.F1_2023
             }
 
             // create the player
-            Player = new Player(pluginManager, ParticipantCount);
+            Player = new Player(pluginManager: pluginManager, tempParticipant: Participants[0]);
 
             AddProperties(pluginManager);
         }
@@ -130,50 +131,77 @@ namespace PluginDeMo_v2.F1_2023
 
             //// update the player ////
             Player.Participant = Participants[playerIndex];
-            Player.PropertiesUpdate(pluginManager);
+            Player.UpdateProperties();
 
             //// update the session ////
-            PropertiesUpdate(pluginManager);
+            UpdateProperties();
         }
 
-        public void PropertiesUpdate(PluginManager pluginManager)
+        public void UpdateProperties()
         {
-            string namePrefix = Utility.SessionPrefix();
-
-            // duration
-            pluginManager.SetPropertyValue(
-                $"{namePrefix}TimeLeft",
-                TimeLeftFormatted.GetType(),
-                TimeLeftFormatted
-            );
-            pluginManager.SetPropertyValue($"{namePrefix}NumLaps", NumLaps.GetType(), NumLaps);
-
-            // session type
-            pluginManager.SetPropertyValue(
-                $"{namePrefix}IsPractice",
-                isPractice.GetType(),
-                isPractice
-            );
-            pluginManager.SetPropertyValue(
-                $"{namePrefix}IsQualifying",
-                isQualifying.GetType(),
-                isQualifying
-            );
-            pluginManager.SetPropertyValue($"{namePrefix}IsRace", isRace.GetType(), isRace);
+            foreach (Property<object> property in Properties)
+            {
+                property.Update();
+            }
         }
 
-        public static void AddProperties(PluginManager pluginManager)
+        public void AddProperties(PluginManager pluginManager)
         {
             string namePrefix = Utility.SessionPrefix(); // PdM_Session_
 
-            // duration
-            pluginManager.AddProperty($"{namePrefix}TimeLeft", 1.ToString().GetType(), "00:00");
-            pluginManager.AddProperty($"{namePrefix}NumLaps", ((byte)1).GetType(), 0);
+            //// session duration ////
+            Properties.Add(
+                new Property<object>( // session time left
+                    pluginManager: pluginManager,
+                    prefix: namePrefix,
+                    suffix: "TimeLeft",
+                    pluginType: typeof(int),
+                    valueFunc: () => TimeLeftFormatted,
+                    updateRate: 1000
+                )
+            );
+            Properties.Add(
+                new Property<object>( // session num laps
+                    pluginManager: pluginManager,
+                    prefix: namePrefix,
+                    suffix: "NumLaps",
+                    pluginType: typeof(byte),
+                    valueFunc: () => NumLaps,
+                    updateRate: 1000
+                )
+            );
 
-            // type
-            pluginManager.AddProperty($"{namePrefix}IsPractice", true.GetType(), false);
-            pluginManager.AddProperty($"{namePrefix}IsQualifying", true.GetType(), false);
-            pluginManager.AddProperty($"{namePrefix}IsRace", true.GetType(), false);
+            //// session type ////
+            Properties.Add(
+                new Property<object>( // session is practice
+                    pluginManager: pluginManager,
+                    prefix: namePrefix,
+                    suffix: "IsPractice",
+                    pluginType: typeof(bool),
+                    valueFunc: () => IsPractice,
+                    updateRate: 1000
+                )
+            );
+            Properties.Add(
+                new Property<object>( // session is qualifying
+                    pluginManager: pluginManager,
+                    prefix: namePrefix,
+                    suffix: "IsQualifying",
+                    pluginType: typeof(bool),
+                    valueFunc: () => IsQualifying,
+                    updateRate: 1000
+                )
+            );
+            Properties.Add(
+                new Property<object>( // session is race
+                    pluginManager: pluginManager,
+                    prefix: namePrefix,
+                    suffix: "IsRace",
+                    pluginType: typeof(bool),
+                    valueFunc: () => IsRace,
+                    updateRate: 1000
+                )
+            );
         }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using SimHub.Plugins;
+using SimHub.Plugins.DataPlugins.RGBDriver.LedsContainers.Groups;
 
 namespace PluginDeMo_v2
 {
@@ -9,7 +10,9 @@ namespace PluginDeMo_v2
         public PluginManager PluginManager { get; set; }
 
         //// plugin manger attributes ////
-        public string Name { get; set; }
+        public string Prefix { get; set; }
+        public string Suffix { get; set; }
+        public string Name => $"{Prefix}{Suffix}";
         public Type PluginType { get; set; }
         public Func<T> ValueFunc { get; set; }
         public T Value => ValueFunc.Invoke();
@@ -17,35 +20,38 @@ namespace PluginDeMo_v2
         //// update attributes ////
         public int UpdateRate { get; set; } = 0; // in milliseconds
         public DateTime LastUpdated { get; set; } = DateTime.Now;
-        public bool UpdateRequired => (DateTime.Now - LastUpdated).TotalMilliseconds > UpdateRate;
+        public bool UpdateNeeded => (DateTime.Now - LastUpdated).TotalMilliseconds > UpdateRate;
 
         public Property(
             PluginManager pluginManager,
-            string name,
+            string prefix,
+            string suffix,
+            Type pluginType,
             Func<T> valueFunc,
             int updateRate = 0
         )
         {
             PluginManager = pluginManager;
-            Name = name;
-            PluginType = valueFunc.Invoke().GetType();
+            Prefix = prefix;
+            Suffix = suffix;
+            PluginType = pluginType;
             ValueFunc = valueFunc;
             UpdateRate = updateRate;
             pluginManager.AddProperty(Name, PluginType, Value);
         }
 
-        public void Update(bool isPlayer = false)
+        public void Update()
         {
-            if (!UpdateRequired)
+            if (!UpdateNeeded)
                 return;
 
-            if (Value.GetType() != PluginType)
-                throw new Exception(
-                    $"Property {Name} is of type {PluginType} but value is of type {Value.GetType()}"
-                );
+            // if (Value.GetType() != PluginType)
+            //     throw new Exception(
+            //         $"Property {Name} is of type {PluginType} but value is of type {Value.GetType()}"
+            //     );
 
             LastUpdated = DateTime.Now;
-            PluginManager.SetPropertyValue(Name, PluginType, ValueFunc.Invoke());
+            PluginManager.SetPropertyValue(Name, PluginType, Value);
         }
     }
 }
