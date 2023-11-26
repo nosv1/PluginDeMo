@@ -49,14 +49,18 @@ namespace PluginDeMo_v2.F1_2023
             FitTyreSet();
             Update();
 
-            ArtificialPredictedPitLap = (byte)
-                Math.Round(
-                    Utility.GaussianRandom(
-                        PitStopWindowIdealLap - (PitStopWindowLatestLap - PitStopWindowIdealLap), // min
-                        PitStopWindowLatestLap, // max
-                        0.5f // std dev
-                    )
-                );
+            // artificial predicted pit lap
+            byte pitWindow = (byte)(PitStopWindowLatestLap - PitStopWindowIdealLap);
+            byte artificialEarliestPitLap = (byte)(PitStopWindowIdealLap - pitWindow);
+            ArtificialPredictedPitLap = (byte)(
+                (byte)
+                    Math.Round(
+                        Utility.GaussianRandom(
+                            mean: pitWindow / 2, // mean
+                            stdDev: pitWindow / 6 // std dev
+                        )
+                    ) + artificialEarliestPitLap
+            );
         }
 
         public void FitTyreSet()
