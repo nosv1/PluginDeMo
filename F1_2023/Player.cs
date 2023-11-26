@@ -13,7 +13,7 @@ namespace PluginDeMo_v2.F1_2023
     {
         public Participant Participant { get; set; }
         public List<Property<object>> Properties { get; set; } = new List<Property<object>>();
-        public string[] RivalNames { get; set; } = new string[] { "BOTTAS", "VESTI" }; // TODO: all caps, and make this configurable
+        public string[] RivalNames { get; set; } = new string[] { "PIASTRI", "VESTI" }; // TODO: all caps, and make this configurable
         public List<Participant> Rivals { get; set; } = new List<Participant>();
 
         public Player(PluginManager pluginManager, Participant tempParticipant)
