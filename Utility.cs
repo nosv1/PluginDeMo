@@ -26,18 +26,13 @@ namespace PluginDeMo_v2
         }
 
         //// random numbers ////
-        public static float GaussianRandom(float min, float max, float stdDev)
+        public static float GaussianRandom(float mean, float stdDev)
         {
             Random random = new Random();
             double u1 = 1.0 - random.NextDouble(); //uniform(0,1] random doubles
             double u2 = 1.0 - random.NextDouble();
             double randStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2); //random normal(0,1)
-            double randNormal = min + stdDev * randStdNormal; //random normal(mean,stdDev^2)
-
-            if (randNormal < min)
-                randNormal = min;
-            else if (randNormal > max)
-                randNormal = max;
+            double randNormal = mean + stdDev * randStdNormal; //random normal(mean,stdDev^2)
 
             return (float)randNormal;
         }
