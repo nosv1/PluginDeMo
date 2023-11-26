@@ -43,6 +43,8 @@ namespace PluginDeMo_v2.F1_2023
 
         // session state
         public byte[] LastEventCode => PacketEventData.m_eventStringCode;
+        public bool SessionStarted =>
+            LastEventCode != null && Utility.GetStringFromByteArray(LastEventCode) == "SSTA";
         public bool SessionEnded =>
             LastEventCode != null && Utility.GetStringFromByteArray(LastEventCode) == "SEND";
 

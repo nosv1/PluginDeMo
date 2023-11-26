@@ -46,12 +46,21 @@ namespace PluginDeMo_v2
                 GameData<CodemastersReader.F12023.Packets.PacketEventData> f1_2023_event_data =
                     data as GameData<CodemastersReader.F12023.Packets.PacketEventData>;
 
-                if (
-                    f1_2023_telemetry_data.GameNewData != null // there is new f1 2023 data
-                    && f1_2023_telemetry_data.GameNewData.Raw.PacketParticipantsData.m_numActiveCars
-                        > 0 // there are active cars
-                )
+                bool new_f1_2023_data = f1_2023_telemetry_data.GameNewData != null;
+                if (new_f1_2023_data)
                 {
+                    bool active_cars =
+                        f1_2023_telemetry_data
+                            .GameNewData
+                            .Raw
+                            .PacketParticipantsData
+                            .m_numActiveCars > 0;
+                    if (!active_cars)
+                    {
+                        F1_2023_Session = null;
+                        return;
+                    }
+
                     if (
                         F1_2023_Session == null // f1 2023 session does not exist
                         || F1_2023_Session.PacketLapData.m_header.m_sessionTime == 0 // in game session hasn't begun
@@ -73,9 +82,6 @@ namespace PluginDeMo_v2
                         ref f1_2023_telemetry_data,
                         ref f1_2023_event_data
                     );
-                    // remove the session if it has ended
-                    if (F1_2023_Session.SessionEnded)
-                        F1_2023_Session = null;
                 }
             }
         }
