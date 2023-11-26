@@ -189,10 +189,14 @@ namespace PluginDeMo_v2.F1_2023
         {
             string namePrefix = Utility.ParticipantPrefix(isPlayer, Position);
             foreach (Property<object> property in Properties)
-            {
-                // match the existing property name and replace the prefix
+            {   
                 property.Prefix = namePrefix;
                 property.Update();
+                
+                // this allows to update the player variant and the participant at the same rate
+                // we're basically undoing the update so the participant variant can update too
+                if (isPlayer) 
+                    property.LastUpdated -= TimeSpan.FromMilliseconds(property.UpdateRate);
             }
 
             if (isPlayer)
@@ -212,7 +216,7 @@ namespace PluginDeMo_v2.F1_2023
                     suffix: "Name",
                     pluginType: typeof(string),
                     valueFunc: () => Session.ParticipantsByPosition[Position - 1]?.Name,
-                    updateRate: 5000
+                    updateRate: 1000
                 ),
                 new Property<object>( // abbreviated participant name
                     pluginManager: pluginManager,
@@ -220,7 +224,7 @@ namespace PluginDeMo_v2.F1_2023
                     suffix: "AbbreviatedName",
                     pluginType: typeof(string),
                     valueFunc: () => Session.ParticipantsByPosition[Position - 1]?.AbbreviatedName,
-                    updateRate: 5000
+                    updateRate: 1000
                 ),
                 new Property<object>( // current lap number
                     pluginManager: pluginManager,
