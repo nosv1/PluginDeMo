@@ -67,6 +67,7 @@
     <Compile Include="F1_2023\Participant.cs" />
     <Compile Include="F1_2023\Player.cs" />
     <Compile Include="F1_2023\Session.cs" />
+    <Compile Include="F1_2023\Teammate.cs" />
     <Compile Include="F1_2023\TyreSet.cs" />
     <Compile Include="Property.cs" />
     <Compile Include="Utility.cs" />

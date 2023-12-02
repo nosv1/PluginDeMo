@@ -27,6 +27,17 @@ namespace PluginDeMo_v2.F1_2023
         {
             string namePrefix = Utility.ParticipantPrefix(isTeammate: true);
 
+            Properties.Add(
+                new Property<object>( // AbbreviatedName
+                    pluginManager: pluginManager,
+                    prefix: namePrefix,
+                    suffix: "AbbreviatedName",
+                    pluginType: typeof(string),
+                    valueFunc: () => Participant?.AbbreviatedName,
+                    updateRate: 1000
+                )
+            );
+
             //// car setup ////
             string setupPrefix = $"{namePrefix}Setup_";
             Properties.Add(
@@ -35,7 +46,7 @@ namespace PluginDeMo_v2.F1_2023
                     prefix: setupPrefix,
                     suffix: "FrontWing",
                     pluginType: typeof(byte),
-                    valueFunc: () => Participant.CarSetupData.m_frontWing,
+                    valueFunc: () => Participant?.CarSetupData.m_frontWing,
                     updateRate: 1000
                 )
             );
@@ -45,7 +56,7 @@ namespace PluginDeMo_v2.F1_2023
                     prefix: setupPrefix,
                     suffix: "RearWing",
                     pluginType: typeof(byte),
-                    valueFunc: () => Participant.CarSetupData.m_rearWing,
+                    valueFunc: () => Participant?.CarSetupData.m_rearWing,
                     updateRate: 1000
                 )
             );
@@ -55,7 +66,7 @@ namespace PluginDeMo_v2.F1_2023
                     prefix: setupPrefix,
                     suffix: "OnThrottle",
                     pluginType: typeof(byte),
-                    valueFunc: () => Participant.CarSetupData.m_onThrottle,
+                    valueFunc: () => Participant?.CarSetupData.m_onThrottle,
                     updateRate: 1000
                 )
             );
@@ -65,7 +76,7 @@ namespace PluginDeMo_v2.F1_2023
                     prefix: setupPrefix,
                     suffix: "OffThrottle",
                     pluginType: typeof(byte),
-                    valueFunc: () => Participant.CarSetupData.m_offThrottle,
+                    valueFunc: () => Participant?.CarSetupData.m_offThrottle,
                     updateRate: 1000
                 )
             );
@@ -75,7 +86,7 @@ namespace PluginDeMo_v2.F1_2023
                     prefix: setupPrefix,
                     suffix: "FrontCamber",
                     pluginType: typeof(float),
-                    valueFunc: () => Participant.CarSetupData.m_frontCamber,
+                    valueFunc: () => Participant?.CarSetupData.m_frontCamber,
                     updateRate: 1000
                 )
             );
@@ -85,7 +96,7 @@ namespace PluginDeMo_v2.F1_2023
                     prefix: setupPrefix,
                     suffix: "RearCamber",
                     pluginType: typeof(float),
-                    valueFunc: () => Participant.CarSetupData.m_rearCamber,
+                    valueFunc: () => Participant?.CarSetupData.m_rearCamber,
                     updateRate: 1000
                 )
             );
@@ -95,7 +106,7 @@ namespace PluginDeMo_v2.F1_2023
                     prefix: setupPrefix,
                     suffix: "FrontToe",
                     pluginType: typeof(float),
-                    valueFunc: () => Participant.CarSetupData.m_frontToe,
+                    valueFunc: () => Participant?.CarSetupData.m_frontToe,
                     updateRate: 1000
                 )
             );
@@ -105,7 +116,7 @@ namespace PluginDeMo_v2.F1_2023
                     prefix: setupPrefix,
                     suffix: "RearToe",
                     pluginType: typeof(float),
-                    valueFunc: () => Participant.CarSetupData.m_rearToe,
+                    valueFunc: () => Participant?.CarSetupData.m_rearToe,
                     updateRate: 1000
                 )
             );
@@ -115,7 +126,7 @@ namespace PluginDeMo_v2.F1_2023
                     prefix: setupPrefix,
                     suffix: "FrontSuspension",
                     pluginType: typeof(byte),
-                    valueFunc: () => Participant.CarSetupData.m_frontSuspension,
+                    valueFunc: () => Participant?.CarSetupData.m_frontSuspension,
                     updateRate: 1000
                 )
             );
@@ -125,7 +136,7 @@ namespace PluginDeMo_v2.F1_2023
                     prefix: setupPrefix,
                     suffix: "RearSuspension",
                     pluginType: typeof(byte),
-                    valueFunc: () => Participant.CarSetupData.m_rearSuspension,
+                    valueFunc: () => Participant?.CarSetupData.m_rearSuspension,
                     updateRate: 1000
                 )
             );
@@ -135,7 +146,7 @@ namespace PluginDeMo_v2.F1_2023
                     prefix: setupPrefix,
                     suffix: "FrontAntiRollBar",
                     pluginType: typeof(byte),
-                    valueFunc: () => Participant.CarSetupData.m_frontAntiRollBar,
+                    valueFunc: () => Participant?.CarSetupData.m_frontAntiRollBar,
                     updateRate: 1000
                 )
             );
@@ -145,7 +156,7 @@ namespace PluginDeMo_v2.F1_2023
                     prefix: setupPrefix,
                     suffix: "RearAntiRollBar",
                     pluginType: typeof(byte),
-                    valueFunc: () => Participant.CarSetupData.m_rearAntiRollBar,
+                    valueFunc: () => Participant?.CarSetupData.m_rearAntiRollBar,
                     updateRate: 1000
                 )
             );
@@ -155,7 +166,7 @@ namespace PluginDeMo_v2.F1_2023
                     prefix: setupPrefix,
                     suffix: "FrontSuspensionHeight",
                     pluginType: typeof(byte),
-                    valueFunc: () => Participant.CarSetupData.m_frontSuspensionHeight,
+                    valueFunc: () => Participant?.CarSetupData.m_frontSuspensionHeight,
                     updateRate: 1000
                 )
             );
@@ -165,7 +176,7 @@ namespace PluginDeMo_v2.F1_2023
                     prefix: setupPrefix,
                     suffix: "RearSuspensionHeight",
                     pluginType: typeof(byte),
-                    valueFunc: () => Participant.CarSetupData.m_rearSuspensionHeight,
+                    valueFunc: () => Participant?.CarSetupData.m_rearSuspensionHeight,
                     updateRate: 1000
                 )
             );
@@ -175,7 +186,7 @@ namespace PluginDeMo_v2.F1_2023
                     prefix: setupPrefix,
                     suffix: "BrakePressure",
                     pluginType: typeof(byte),
-                    valueFunc: () => Participant.CarSetupData.m_brakePressure,
+                    valueFunc: () => Participant?.CarSetupData.m_brakePressure,
                     updateRate: 1000
                 )
             );
@@ -185,7 +196,7 @@ namespace PluginDeMo_v2.F1_2023
                     prefix: setupPrefix,
                     suffix: "BrakeBias",
                     pluginType: typeof(byte),
-                    valueFunc: () => Participant.CarSetupData.m_brakeBias,
+                    valueFunc: () => Participant?.CarSetupData.m_brakeBias,
                     updateRate: 1000
                 )
             );
@@ -195,7 +206,7 @@ namespace PluginDeMo_v2.F1_2023
                     prefix: setupPrefix,
                     suffix: "RearLeftTyrePressure",
                     pluginType: typeof(float),
-                    valueFunc: () => Participant.CarSetupData.m_rearLeftTyrePressure,
+                    valueFunc: () => Participant?.CarSetupData.m_rearLeftTyrePressure,
                     updateRate: 1000
                 )
             );
@@ -205,7 +216,7 @@ namespace PluginDeMo_v2.F1_2023
                     prefix: setupPrefix,
                     suffix: "RearRightTyrePressure",
                     pluginType: typeof(float),
-                    valueFunc: () => Participant.CarSetupData.m_rearRightTyrePressure,
+                    valueFunc: () => Participant?.CarSetupData.m_rearRightTyrePressure,
                     updateRate: 1000
                 )
             );
@@ -215,7 +226,7 @@ namespace PluginDeMo_v2.F1_2023
                     prefix: setupPrefix,
                     suffix: "FrontLeftTyrePressure",
                     pluginType: typeof(float),
-                    valueFunc: () => Participant.CarSetupData.m_frontLeftTyrePressure,
+                    valueFunc: () => Participant?.CarSetupData.m_frontLeftTyrePressure,
                     updateRate: 1000
                 )
             );
@@ -225,7 +236,7 @@ namespace PluginDeMo_v2.F1_2023
                     prefix: setupPrefix,
                     suffix: "FrontRightTyrePressure",
                     pluginType: typeof(float),
-                    valueFunc: () => Participant.CarSetupData.m_frontRightTyrePressure,
+                    valueFunc: () => Participant?.CarSetupData.m_frontRightTyrePressure,
                     updateRate: 1000
                 )
             );
@@ -235,7 +246,7 @@ namespace PluginDeMo_v2.F1_2023
                     prefix: setupPrefix,
                     suffix: "Ballast",
                     pluginType: typeof(byte),
-                    valueFunc: () => Participant.CarSetupData.m_ballast,
+                    valueFunc: () => Participant?.CarSetupData.m_ballast,
                     updateRate: 1000
                 )
             );
@@ -245,7 +256,7 @@ namespace PluginDeMo_v2.F1_2023
                     prefix: setupPrefix,
                     suffix: "FuelLoad",
                     pluginType: typeof(float),
-                    valueFunc: () => Participant.CarSetupData.m_fuelLoad,
+                    valueFunc: () => Participant?.CarSetupData.m_fuelLoad,
                     updateRate: 1000
                 )
             );
