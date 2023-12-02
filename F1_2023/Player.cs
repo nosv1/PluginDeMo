@@ -16,9 +16,19 @@ namespace PluginDeMo_v2.F1_2023
         public string[] RivalNames { get; set; } = new string[] { "PIASTRI", "VESTI" }; // TODO: all caps, and make this configurable
         public List<Participant> Rivals { get; set; } = new List<Participant>();
 
+        public Participant TeammateParticipant =>
+            Participant
+                .Session
+                .Participants
+                .Where(p => p.TeamId == Participant.TeamId)
+                .Where(p => p.Name != Participant.Name)
+                .FirstOrDefault();
+        public Teammate Teammate { get; set; }
+
         public Player(PluginManager pluginManager, Participant tempParticipant)
         {
             Participant = tempParticipant;
+            Teammate = new Teammate(pluginManager, this);
             Participant.AddProperties(pluginManager, isPlayer: true);
             AddProperties(pluginManager);
         }
@@ -64,7 +74,7 @@ namespace PluginDeMo_v2.F1_2023
 
         public void AddProperties(PluginManager pluginManager)
         {
-            string namePrefix = Utility.ParticipantPrefix(true, -1);
+            string namePrefix = Utility.ParticipantPrefix(isPlayer: true);
 
             Properties.Add(
                 new Property<object>( // participant name

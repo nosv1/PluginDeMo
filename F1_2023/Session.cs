@@ -137,6 +137,9 @@ namespace PluginDeMo_v2.F1_2023
             Player.Participant = Participants[playerIndex];
             Player.UpdateProperties();
 
+            //// update player's teammate ////
+            Player.Teammate.UpdateProperties();
+
             //// update the session ////
             UpdateProperties();
         }

@@ -43,10 +43,16 @@ namespace PluginDeMo_v2
             return "PdM_";
         }
 
-        public static string ParticipantPrefix(bool isPlayer, int index)
+        public static string ParticipantPrefix(
+            bool isPlayer = false,
+            bool isTeammate = false,
+            int index = -1
+        )
         {
             if (isPlayer)
                 return $"{PdMPropertyPrefix()}Player_"; // PdM_Player_
+            else if (isTeammate)
+                return $"{PdMPropertyPrefix()}Teammate_"; // PdM_Teammate_
             else
                 return $"{PdMPropertyPrefix()}Participant{index.ToString().PadLeft(2, '0')}_"; // PdM_Participant00_
         }

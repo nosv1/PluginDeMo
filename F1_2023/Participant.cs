@@ -17,6 +17,7 @@ namespace PluginDeMo_v2.F1_2023
         public F12023_Packets.CarTelemetryData CarTelemetryData { get; set; } // rate specified in menus
         public F12023_Packets.CarDamageData CarDamageData { get; set; } // 10 per second
         public F12023_Packets.CarStatusData CarStatusData { get; set; } // rate specified in menus
+        public F12023_Packets.CarSetupData CarSetupData { get; set; } // 2 per second
         public F12023_Packets.PacketTyreSetsData PacketTyreSetsData { get; set; } // 20 per second cycling through cars (so 1 per second per car if 20 cars?)
         public F12023_Packets.PacketSessionHistoryData PacketSessionHistoryData { get; set; } // 20 per second cycling through cars (so 1 per second per car if 20 cars?)
         public F12023_Packets.TyreSetData CurrentTyreSetData { get; set; } // can detect change when packetTyreSetsData.m_fittedIndx changes
@@ -28,6 +29,7 @@ namespace PluginDeMo_v2.F1_2023
         public Fuel Fuel { get; set; }
         public string Name => Utility.GetStringFromCharArray(ParticipantData.m_name);
         public string AbbreviatedName => Name.Substring(0, Math.Min(Name.Length, 3)).ToUpper(); // Hamilton -> HAM
+        public int TeamId => ParticipantData.m_teamId;
 
         // participant status
         public int CurrentLapNumber { get; set; }
@@ -187,15 +189,15 @@ namespace PluginDeMo_v2.F1_2023
         ///// PROPERTIES /////
         public void UpdateProperties(bool isPlayer = false)
         {
-            string namePrefix = Utility.ParticipantPrefix(isPlayer, Position);
+            string namePrefix = Utility.ParticipantPrefix(isPlayer: true, index: Position);
             foreach (Property<object> property in Properties)
-            {   
+            {
                 property.Prefix = namePrefix;
                 property.Update();
-                
+
                 // this allows to update the player variant and the participant at the same rate
                 // we're basically undoing the update so the participant variant can update too
-                if (isPlayer) 
+                if (isPlayer)
                     property.LastUpdated -= TimeSpan.FromMilliseconds(property.UpdateRate);
             }
 
@@ -206,10 +208,11 @@ namespace PluginDeMo_v2.F1_2023
         public void AddProperties(PluginManager pluginManager, bool isPlayer, int index = -1)
         {
             // index is defaulted to -1 so that we don't have to pass it in when adding the player properties
-            string namePrefix = Utility.ParticipantPrefix(isPlayer, index + 1); // when we set properties they're based on position, so we add 1 to the index
+            string namePrefix = Utility.ParticipantPrefix(isPlayer: isPlayer, index: index + 1); // when we set properties they're based on position, so we add 1 to the index
 
             Properties = new List<Property<object>>()
             {
+                //// participant data ////
                 new Property<object>( // participant name
                     pluginManager: pluginManager,
                     prefix: namePrefix,
@@ -234,6 +237,7 @@ namespace PluginDeMo_v2.F1_2023
                     valueFunc: () => Session.ParticipantsByPosition[Position - 1]?.CurrentLapNumber,
                     updateRate: 1000
                 ),
+                //// participant status ////
                 new Property<object>( // stint lap
                     pluginManager: pluginManager,
                     prefix: namePrefix,
@@ -270,6 +274,7 @@ namespace PluginDeMo_v2.F1_2023
                             ?.VisualTyreName,
                     updateRate: 1000
                 ),
+                //// participant pace ////
                 new Property<object>( // average lap time
                     pluginManager: pluginManager,
                     prefix: namePrefix,
@@ -290,6 +295,7 @@ namespace PluginDeMo_v2.F1_2023
                         Session.ParticipantsByPosition[Position - 1]?.DeltaToLeaderInSeconds,
                     updateRate: 500
                 ),
+                //// participant pit stop ////
                 new Property<object>( // num pit stops
                     pluginManager: pluginManager,
                     prefix: namePrefix,
@@ -315,6 +321,7 @@ namespace PluginDeMo_v2.F1_2023
                     valueFunc: () => Session.ParticipantsByPosition[Position - 1]?.IsPitting,
                     updateRate: 1000
                 ),
+                //// participant telemetry ////
             };
         }
     }
