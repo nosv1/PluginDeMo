@@ -92,6 +92,10 @@ namespace PluginDeMo_v2.F1_2023
                 .GameNewData
                 .Raw
                 .PacketCarStatusData;
+            F12023_Packets.PacketCarSetupData packetCarSetupData = telemetry_data
+                .GameNewData
+                .Raw
+                .PacketCarSetupData;
 
             Dictionary<int, F12023_Packets.PacketTyreSetsData> packetTyreSetsData = telemetry_data
                 .GameNewData
@@ -117,6 +121,7 @@ namespace PluginDeMo_v2.F1_2023
                 Participants[i].CarDamageUpdate(packetCarDamageData.m_carDamageData[i]);
                 Participants[i].LapDataUpdate(PacketLapData.m_lapData[i]);
                 Participants[i].CarStatusUpdate(packetCarStatusData.m_carStatusData[i]);
+                Participants[i].CarSetupDataUpdate(packetCarSetupData.m_carSetups[i]);
 
                 if (packetTyreSetsData.ContainsKey(i))
                     Participants[packetTyreSetsData[i].m_carIdx].TyreSetUpdate(

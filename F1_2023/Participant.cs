@@ -107,6 +107,11 @@ namespace PluginDeMo_v2.F1_2023
             UpdateFuel();
         }
 
+        public void CarSetupDataUpdate(F12023_Packets.CarSetupData packetCarSetupData)
+        {
+            CarSetupData = packetCarSetupData;
+        }
+
         public void SessionHistoryUpdate(
             F12023_Packets.PacketSessionHistoryData packetSessionHistoryData
         )
