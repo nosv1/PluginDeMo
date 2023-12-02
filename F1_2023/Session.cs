@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -40,6 +40,8 @@ namespace PluginDeMo_v2.F1_2023
             PacketSessionData.m_sessionType >= 5 && PacketSessionData.m_sessionType <= 9;
         public bool IsRace =>
             PacketSessionData.m_sessionType >= 10 && PacketSessionData.m_sessionType <= 12;
+        public string SessionType => SessionTypes[PacketSessionData.m_sessionType];
+        public string Track => TrackIds[PacketSessionData.m_trackId];
 
         // session state
         public byte[] LastEventCode => PacketEventData.m_eventStringCode;
@@ -205,5 +207,62 @@ namespace PluginDeMo_v2.F1_2023
                 )
             );
         }
+
+        public Dictionary<int, string> SessionTypes { get; set; } =
+            new Dictionary<int, string>
+            {
+                { 0, "Unknown" },
+                { 1, "P1" },
+                { 2, "P2" },
+                { 3, "P3" },
+                { 4, "Short P" },
+                { 5, "Q1" },
+                { 6, "Q2" },
+                { 7, "Q3" },
+                { 8, "Short Q" },
+                { 9, "OSQ" },
+                { 10, "R" },
+                { 11, "R2" },
+                { 12, "R3" },
+                { 13, "Time Trial" }
+            };
+
+        public Dictionary<int, string> TrackIds { get; set; } =
+            new Dictionary<int, string>
+            {
+                { 0, "Melbourne" },
+                { 1, "Paul Ricard" },
+                { 2, "Shanghai" },
+                { 3, "Sakhir (Bahrain)" },
+                { 4, "Catalunya" },
+                { 5, "Monaco" },
+                { 6, "Montreal" },
+                { 7, "Silverstone" },
+                { 8, "Hockenheim" },
+                { 9, "Hungaroring" },
+                { 10, "Spa" },
+                { 11, "Monza" },
+                { 12, "Singapore" },
+                { 13, "Suzuka" },
+                { 14, "Abu Dhabi" },
+                { 15, "Texas" },
+                { 16, "Brazil" },
+                { 17, "Austria" },
+                { 18, "Sochi" },
+                { 19, "Mexico" },
+                { 20, "Baku (Azerbaijan)" },
+                { 21, "Sakhir Short" },
+                { 22, "Silverstone Short" },
+                { 23, "Texas Short" },
+                { 24, "Suzuka Short" },
+                { 25, "Hanoi" },
+                { 26, "Zandvoort" },
+                { 27, "Imola" },
+                { 28, "Portimão" },
+                { 29, "Jeddah" },
+                { 30, "Miami" },
+                { 31, "Las Vegas" },
+                { 32, "Losail" }
+            };
     }
 }
