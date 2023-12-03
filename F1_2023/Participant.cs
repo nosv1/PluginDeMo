@@ -194,7 +194,7 @@ namespace PluginDeMo_v2.F1_2023
         ///// PROPERTIES /////
         public void UpdateProperties(bool isPlayer = false)
         {
-            string namePrefix = Utility.ParticipantPrefix(isPlayer: true, index: Position);
+            string namePrefix = Utility.ParticipantPrefix(isPlayer: isPlayer, index: Position);
             foreach (Property<object> property in Properties)
             {
                 property.Prefix = namePrefix;
