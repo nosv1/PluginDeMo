@@ -19,6 +19,7 @@ namespace PluginDeMo_v2.F1_2023
         public Participant[] ParticipantsByPosition { get; set; }
         public Player Player { get; set; }
         public List<Property<object>> Properties { get; set; } = new List<Property<object>>();
+        public Random Randomizer { get; set; } = new Random();
 
         // session data
         public F12023_Packets.PacketSessionData PacketSessionData { get; set; } // 2 per second
@@ -70,9 +71,8 @@ namespace PluginDeMo_v2.F1_2023
         }
 
         public void F1_2023_DataUpdate(
-            PluginManager pluginManager,
             ref GameData<TelemetryContainerEx> telemetry_data,
-            ref GameData<EventData> event_data
+            ref GameData<F12023_Packets.PacketEventData> event_data
         )
         {
             //// get the packets ////

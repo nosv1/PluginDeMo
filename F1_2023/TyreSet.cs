@@ -57,7 +57,8 @@ namespace PluginDeMo_v2.F1_2023
                     Math.Round(
                         Utility.GaussianRandom(
                             mean: pitWindow / 2, // mean
-                            stdDev: pitWindow / 6 // std dev
+                            stdDev: pitWindow / 6, // std dev
+                            Participant.Session.Randomizer
                         )
                     ) + artificialEarliestPitLap
             );

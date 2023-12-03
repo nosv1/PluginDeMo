@@ -78,7 +78,6 @@ namespace PluginDeMo_v2
                     }
                     // update the session
                     F1_2023_Session.F1_2023_DataUpdate(
-                        pluginManager,
                         ref f1_2023_telemetry_data,
                         ref f1_2023_event_data
                     );
