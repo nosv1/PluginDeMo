@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using CodemastersReader;
 using GameReaderCommon;
 using SimHub.Plugins;
-using EventData = CodemastersReader.F12023.Packets.PacketEventData;
+using F1_2023_Settings = PluginDeMo_v2.F1_2023.Settings;
 using F12023_Packets = CodemastersReader.F12023.Packets;
 using TelemetryContainerEx = CodemastersReader.F12023.Packets.F12023TelemetryContainerEx;
 
@@ -20,6 +20,7 @@ namespace PluginDeMo_v2.F1_2023
         public Player Player { get; set; }
         public List<Property<object>> Properties { get; set; } = new List<Property<object>>();
         public Random Randomizer { get; set; } = new Random();
+        public F1_2023_Settings Settings { get; set; }
 
         // session data
         public F12023_Packets.PacketSessionData PacketSessionData { get; set; } // 2 per second
@@ -51,9 +52,10 @@ namespace PluginDeMo_v2.F1_2023
         public bool SessionEnded =>
             LastEventCode != null && Utility.GetStringFromByteArray(LastEventCode) == "SEND";
 
-        public Session(PluginManager pluginManager, int numParticipants)
+        public Session(PluginManager pluginManager, int numParticipants, F1_2023_Settings settings)
         {
             ParticipantCount = numParticipants;
+            Settings = settings;
 
             // create the particpants
             Participants = new Participant[ParticipantCount];

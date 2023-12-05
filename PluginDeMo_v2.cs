@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Controls;
 using GameReaderCommon;
 using SimHub.Plugins;
+using F12023_Packets = CodemastersReader.F12023.Packets;
 
 namespace PluginDeMo_v2
 {
@@ -16,6 +14,7 @@ namespace PluginDeMo_v2
     public class PluginDeMo_v2 : IPlugin, IDataPlugin, IWPFSettings
     {
         public PluginManager PluginManager { get; set; }
+        public Settings Settings { get; set; }
         public F1_2023.Session F1_2023_Session { get; set; }
 
         // property names class
@@ -41,10 +40,10 @@ namespace PluginDeMo_v2
 
             if (gameName == GameNames.F1_2023)
             {
-                GameData<CodemastersReader.F12023.Packets.F12023TelemetryContainerEx> f1_2023_telemetry_data =
-                    data as GameData<CodemastersReader.F12023.Packets.F12023TelemetryContainerEx>;
-                GameData<CodemastersReader.F12023.Packets.PacketEventData> f1_2023_event_data =
-                    data as GameData<CodemastersReader.F12023.Packets.PacketEventData>;
+                GameData<F12023_Packets.F12023TelemetryContainerEx> f1_2023_telemetry_data =
+                    data as GameData<F12023_Packets.F12023TelemetryContainerEx>;
+                GameData<F12023_Packets.PacketEventData> f1_2023_event_data =
+                    data as GameData<F12023_Packets.PacketEventData>;
 
                 bool new_f1_2023_data = f1_2023_telemetry_data.GameNewData != null;
                 if (new_f1_2023_data)
@@ -73,7 +72,8 @@ namespace PluginDeMo_v2
                                 .GameNewData
                                 .Raw
                                 .PacketParticipantsData
-                                .m_numActiveCars
+                                .m_numActiveCars,
+                            settings: Settings.F1_2023
                         );
                     }
                     // update the session
@@ -97,7 +97,13 @@ namespace PluginDeMo_v2
             SimHub.Logging.Current.Info("Starting Plugin de Mo 0.2.0");
 
             pluginManager.AddProperty(PropertyNames.PdM_Time, GetType(), "");
-            _ = new F1_2023.Session(pluginManager, 10); // arbitrary number of participants, will be updated in data update, at the time of writing this, needs to be at least > number of rivals player has set
+
+            Settings = new Settings(currentDirectory: Directory.GetCurrentDirectory());
+            _ = new F1_2023.Session(
+                pluginManager: pluginManager,
+                numParticipants: Math.Max(1, Settings.F1_2023.PlayerRivals.Count()),
+                settings: Settings.F1_2023
+            ); // number of participants, will be updated in data update, at the time of writing this, needs to be at least > number of rivals player has set
         }
     }
 }

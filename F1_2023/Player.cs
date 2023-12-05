@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.UI.WebControls.WebParts;
 using GameReaderCommon;
 using SimHub.Plugins;
 
@@ -13,7 +14,7 @@ namespace PluginDeMo_v2.F1_2023
     {
         public Participant Participant { get; set; }
         public List<Property<object>> Properties { get; set; } = new List<Property<object>>();
-        public string[] RivalNames { get; set; } = new string[] { "PIASTRI", "LAWSON" }; // TODO: all caps, and make this configurable
+        public string[] RivalNames { get; set; }
         public List<Participant> Rivals { get; set; } = new List<Participant>();
 
         public Participant TeammateParticipant =>
@@ -29,6 +30,7 @@ namespace PluginDeMo_v2.F1_2023
         {
             Participant = tempParticipant;
             Teammate = new Teammate(pluginManager, this);
+            RivalNames = Participant.Session.Settings.PlayerRivals;
             Participant.AddProperties(pluginManager, isPlayer: true);
             AddProperties(pluginManager);
         }

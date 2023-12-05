@@ -42,6 +42,9 @@
     <Reference Include="log4net, Version=2.0.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a">
       <HintPath>packages\log4net.2.0.15\lib\net45\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationFramework" />
     <Reference Include="SimHub.Logging">
       <HintPath>.\bin\Include\SimHub.Logging.dll</HintPath>
@@ -67,11 +70,13 @@
     <Compile Include="F1_2023\Participant.cs" />
     <Compile Include="F1_2023\Player.cs" />
     <Compile Include="F1_2023\Session.cs" />
+    <Compile Include="F1_2023\Settings.cs" />
     <Compile Include="F1_2023\Teammate.cs" />
     <Compile Include="F1_2023\TyreSet.cs" />
-    <Compile Include="Property.cs" />
-    <Compile Include="Utility.cs" />
     <Compile Include="PluginDeMo_v2.cs" />
+    <Compile Include="Property.cs" />
+    <Compile Include="Settings.cs" />
+    <Compile Include="Utility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
