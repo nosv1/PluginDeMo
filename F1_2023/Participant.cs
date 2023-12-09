@@ -56,7 +56,7 @@ namespace PluginDeMo_v2.F1_2023
         public int AverageLapLastCalculatedOnLap { get; set; } = 0; // lap number when average lap was last calculated
         public uint LastLapTime => LapData.m_lastLapTimeInMS; // in ms
         public string LastLapTimeFormatted =>
-            Utility.SecondsToTimeString(BestLapTime / 1000f, @"m\:ss\.fff");
+            Utility.SecondsToTimeString(LastLapTime / 1000f, @"m\:ss\.fff");
         public uint DeltaToLeader => LapData.m_deltaToRaceLeaderInMS;
         public float DeltaToLeaderInSeconds => DeltaToLeader / 1000f;
 
