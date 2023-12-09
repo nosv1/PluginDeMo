@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web.UI.WebControls.WebParts;
-using GameReaderCommon;
 using SimHub.Plugins;
 
 namespace PluginDeMo_v2.F1_2023
