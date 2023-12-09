@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace PluginDeMo_v2.F1_2023
@@ -18,11 +19,15 @@ namespace PluginDeMo_v2.F1_2023
             + (Participant.LapData.m_lapDistance / TrackLength); // fraction of current lap
 
         // Variables related to wear
-        public float Wear { get; set; } // current wear
+        public float Wear => Participant.CarDamageData.m_tyresWear.Max(); // wear
+        public Dictionary<int, float> WearByLap { get; set; } = new Dictionary<int, float>(); // wear by lap
         public float StintWear => Wear - TyreWearAtFitting; // wear since fitting
-        public float WearLastLap { get; set; } // wear last lap
+        public float WearLastLap =>
+            WearByLap.ContainsKey(CurrentLapNumber) && WearByLap.ContainsKey(CurrentLapNumber - 1)
+                ? WearByLap[CurrentLapNumber] - WearByLap[CurrentLapNumber - 1]
+                : 0; // wear last lap
         public float WearPerDistance => StintWear / StintOdometer; // wear per m
-        public float AverageWearPerLap { get; set; } // wear per lap based wear per m and track length
+        public float AverageWearPerLap => WearPerDistance * TrackLength; // wear per lap based wear per m and track length
 
         // Variables related to odometer
         public float SessionOdometer => Participant.LapData.m_totalDistance; // distance since session start
@@ -32,15 +37,25 @@ namespace PluginDeMo_v2.F1_2023
         public float TrackLength => Participant.Session.PacketSessionData.m_trackLength; // distance of a lap
 
         // Variables related to pit stop window
-        public byte PitStopWindowIdealLap { get; set; } // ideal lap for pit stop
-        public byte PitStopWindowLatestLap { get; set; } // latest lap for pit stop
+        public byte PitStopWindowIdealLap =>
+            Participant.Session.PacketSessionData.m_pitStopWindowIdealLap > 0
+                ? Participant.Session.PacketSessionData.m_pitStopWindowIdealLap
+                : Participant.Session.NumLaps; // ideal lap for pit stop, num laps if no data
+        public byte PitStopWindowLatestLap =>
+            Participant.Session.PacketSessionData.m_pitStopWindowLatestLap > 0
+                ? Math.Min(
+                    Participant.Session.PacketSessionData.m_pitStopWindowLatestLap,
+                    Participant.Session.NumLaps
+                ) // i guess latest lap is sometimes higher than num laps for some reason, clipping it to num laps
+                : Participant.Session.NumLaps; // latest lap for pit stop, num laps if no data
         public float WearAtIdealPitLap { get; set; } // wear at ideal pit lap
         public float WearAtLatestPitLap { get; set; } // wear at latest pit lap
         public byte ArtificialPredictedPitLap { get; set; } // artificial predicted pit lap based on real window and gausian distribution
 
         // Variables related to current lap
         public int CurrentLapNumber { get; set; } = 0; // current lap number
-        public float WearAtStartOfLap { get; set; } // wear at start of lap
+        public float WearAtStartOfLap =>
+            WearByLap.ContainsKey(CurrentLapNumber) ? WearByLap[CurrentLapNumber] : 0; // wear at start of lap
 
         public TyreSet(Participant participant, TyreSet previousTyreSet = null)
         {
@@ -50,14 +65,14 @@ namespace PluginDeMo_v2.F1_2023
             Update();
 
             // artificial predicted pit lap
-            byte pitWindow = (byte)(PitStopWindowLatestLap - PitStopWindowIdealLap);
-            byte artificialEarliestPitLap = (byte)(PitStopWindowIdealLap - pitWindow);
+            byte pitWindowSize = (byte)(PitStopWindowLatestLap - PitStopWindowIdealLap);
+            byte artificialEarliestPitLap = (byte)(PitStopWindowIdealLap - pitWindowSize);
             ArtificialPredictedPitLap = (byte)(
                 (byte)
                     Math.Round(
                         Utility.GaussianRandom(
-                            mean: pitWindow / 2, // mean
-                            stdDev: pitWindow / 6, // std dev
+                            mean: pitWindowSize / 2, // mean
+                            stdDev: pitWindowSize / 6, // std dev
                             Participant.Session.Randomizer
                         )
                     ) + artificialEarliestPitLap
@@ -78,31 +93,18 @@ namespace PluginDeMo_v2.F1_2023
 
         public void Update()
         {
-            //// wear
-            Wear = Participant.CarDamageData.m_tyresWear.Max();
-
-            //// wear last lap
+            //// new lap
             if (Participant.CurrentLapNumber != CurrentLapNumber)
             {
                 CurrentLapNumber = Participant.CurrentLapNumber;
-                WearLastLap = Wear - WearAtStartOfLap;
-                WearAtStartOfLap = Wear;
+                WearByLap.Add(CurrentLapNumber, Wear);
             }
 
-            //// average wear per lap
+            // track length data exists
             if (TrackLength == 0)
                 return;
 
-            AverageWearPerLap = WearPerDistance * TrackLength;
-
             //// pit stop window
-            PitStopWindowIdealLap = Participant.Session.PacketSessionData.m_pitStopWindowIdealLap;
-            PitStopWindowLatestLap = Participant.Session.PacketSessionData.m_pitStopWindowLatestLap;
-            if (PitStopWindowIdealLap == 0 || PitStopWindowLatestLap == 0)
-            {
-                PitStopWindowIdealLap = Participant.Session.NumLaps;
-                PitStopWindowLatestLap = Participant.Session.NumLaps;
-            }
             WearAtIdealPitLap = WearAtDistance(PitStopWindowIdealLap * TrackLength);
             WearAtLatestPitLap = WearAtDistance(PitStopWindowLatestLap * TrackLength);
             ArtificialPredictedPitLap = (byte)Math.Max(CurrentLapNumber, ArtificialPredictedPitLap); // in case the predicted pit lap is before the current lap
