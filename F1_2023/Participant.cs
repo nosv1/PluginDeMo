@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using SimHub.Plugins;
@@ -10,7 +10,7 @@ namespace PluginDeMo_v2.F1_2023
     {
         public Session Session { get; set; }
         public int Index { get; set; } // index in the packet arrays
-        public List<Property<object>> Properties { get; set; } = new List<Property<object>>();
+        public List<Property<object>> Properties { get; set; }
 
         // packets
         public F12023_Packets.ParticipantData ParticipantData { get; set; } // every 5 seconds
@@ -54,12 +54,29 @@ namespace PluginDeMo_v2.F1_2023
         public string LastThreeLapAverageLapTimeFormatted =>
             Utility.SecondsToTimeString(LastThreeLapAverageLapTime / 1000f, @"m\:ss\.fff");
         public int AverageLapLastCalculatedOnLap { get; set; } = 0; // lap number when average lap was last calculated
+        public uint LastLapTime => LapData.m_lastLapTimeInMS; // in ms
+        public string LastLapTimeFormatted =>
+            Utility.SecondsToTimeString(BestLapTime / 1000f, @"m\:ss\.fff");
         public uint DeltaToLeader => LapData.m_deltaToRaceLeaderInMS;
         public float DeltaToLeaderInSeconds => DeltaToLeader / 1000f;
+
+        // participant damage
+        public float AverageAeroDamage =>
+            (
+                CarDamageData.m_frontLeftWingDamage
+                + CarDamageData.m_frontRightWingDamage
+                + CarDamageData.m_rearWingDamage
+                + CarDamageData.m_floorDamage
+                + CarDamageData.m_diffuserDamage
+                + CarDamageData.m_sidepodDamage
+            ) / 6f;
+        public float AverageEngineDamage =>
+            (CarDamageData.m_gearBoxDamage + CarDamageData.m_engineDamage) / 2f;
 
         public Participant(Session session, PluginManager pluginManager, int index = -1)
         {
             Session = session;
+            Properties = new List<Property<object>>();
             AddProperties(pluginManager, isPlayer: false, index: index);
         }
 
@@ -215,119 +232,177 @@ namespace PluginDeMo_v2.F1_2023
             // index is defaulted to -1 so that we don't have to pass it in when adding the player properties
             string namePrefix = Utility.ParticipantPrefix(isPlayer: isPlayer, index: index + 1); // when we set properties they're based on position, so we add 1 to the index
 
-            Properties = new List<Property<object>>()
-            {
-                //// participant data ////
-                new Property<object>( // participant name
-                    pluginManager: pluginManager,
-                    prefix: namePrefix,
-                    suffix: "Name",
-                    pluginType: typeof(string),
-                    valueFunc: () => Session.ParticipantsByPosition[Position - 1]?.Name,
-                    updateRate: 1000
-                ),
-                new Property<object>( // abbreviated participant name
-                    pluginManager: pluginManager,
-                    prefix: namePrefix,
-                    suffix: "AbbreviatedName",
-                    pluginType: typeof(string),
-                    valueFunc: () => Session.ParticipantsByPosition[Position - 1]?.AbbreviatedName,
-                    updateRate: 1000
-                ),
-                new Property<object>( // current lap number
-                    pluginManager: pluginManager,
-                    prefix: namePrefix,
-                    suffix: "CurrentLapNumber",
-                    pluginType: typeof(int),
-                    valueFunc: () => Session.ParticipantsByPosition[Position - 1]?.CurrentLapNumber,
-                    updateRate: 1000
-                ),
-                //// participant status ////
-                new Property<object>( // stint lap
-                    pluginManager: pluginManager,
-                    prefix: namePrefix,
-                    suffix: "StintLap",
-                    pluginType: typeof(float),
-                    valueFunc: () =>
-                        Session
-                            .ParticipantsByPosition[Position - 1]
-                            ?.CurrentTyreSet
-                            ?.LapsSinceFitting,
-                    updateRate: 1000
-                ),
-                new Property<object>( // artificial predicted pit lap
-                    pluginManager: pluginManager,
-                    prefix: namePrefix,
-                    suffix: "ArtificialPredictedPitLap",
-                    pluginType: typeof(byte),
-                    valueFunc: () =>
-                        Session
-                            .ParticipantsByPosition[Position - 1]
-                            ?.CurrentTyreSet
-                            ?.ArtificialPredictedPitLap,
-                    updateRate: 1000
-                ),
-                new Property<object>( // visual tyre name
-                    pluginManager: pluginManager,
-                    prefix: namePrefix,
-                    suffix: "VisualTyreName",
-                    pluginType: typeof(string),
-                    valueFunc: () =>
-                        Session
-                            .ParticipantsByPosition[Position - 1]
-                            ?.CurrentTyreSet
-                            ?.VisualTyreName,
-                    updateRate: 1000
-                ),
-                //// participant pace ////
-                new Property<object>( // average lap time
-                    pluginManager: pluginManager,
-                    prefix: namePrefix,
-                    suffix: "AverageLapTime",
-                    pluginType: typeof(string),
-                    valueFunc: () =>
-                        Session
-                            .ParticipantsByPosition[Position - 1]
-                            ?.LastThreeLapAverageLapTimeFormatted,
-                    updateRate: 1000
-                ),
-                new Property<object>( // delta to leader
-                    pluginManager: pluginManager,
-                    prefix: namePrefix,
-                    suffix: "DeltaToLeader",
-                    pluginType: typeof(float),
-                    valueFunc: () =>
-                        Session.ParticipantsByPosition[Position - 1]?.DeltaToLeaderInSeconds,
-                    updateRate: 500
-                ),
-                //// participant pit stop ////
-                new Property<object>( // num pit stops
-                    pluginManager: pluginManager,
-                    prefix: namePrefix,
-                    suffix: "NumPitStops",
-                    pluginType: typeof(byte),
-                    valueFunc: () => Session.ParticipantsByPosition[Position - 1]?.NumPitStops,
-                    updateRate: 1000
-                ),
-                new Property<object>( // penalties in seconds
-                    pluginManager: pluginManager,
-                    prefix: namePrefix,
-                    suffix: "PenaltiesInSeconds",
-                    pluginType: typeof(byte),
-                    valueFunc: () =>
-                        Session.ParticipantsByPosition[Position - 1]?.PenaltiesInSeconds,
-                    updateRate: 1000
-                ),
-                new Property<object>( // is pitting
-                    pluginManager: pluginManager,
-                    prefix: namePrefix,
-                    suffix: "IsPitting",
-                    pluginType: typeof(bool),
-                    valueFunc: () => Session.ParticipantsByPosition[Position - 1]?.IsPitting,
-                    updateRate: 1000
-                ),
-                //// participant telemetry ////
-            };
+            Properties.AddRange(
+                new List<Property<object>>
+                {
+                    //// participant data ////
+                    new Property<object>( // participant name
+                        pluginManager: pluginManager,
+                        prefix: namePrefix,
+                        suffix: "Name",
+                        pluginType: typeof(string),
+                        valueFunc: () => Session.ParticipantsByPosition[Position - 1]?.Name,
+                        updateRate: 1000
+                    ),
+                    new Property<object>( // abbreviated participant name
+                        pluginManager: pluginManager,
+                        prefix: namePrefix,
+                        suffix: "AbbreviatedName",
+                        pluginType: typeof(string),
+                        valueFunc: () =>
+                            Session.ParticipantsByPosition[Position - 1]?.AbbreviatedName,
+                        updateRate: 1000
+                    ),
+                    new Property<object>( // current lap number
+                        pluginManager: pluginManager,
+                        prefix: namePrefix,
+                        suffix: "CurrentLapNumber",
+                        pluginType: typeof(int),
+                        valueFunc: () =>
+                            Session.ParticipantsByPosition[Position - 1]?.CurrentLapNumber,
+                        updateRate: 1000
+                    ),
+                    //// participant data ////
+                    new Property<object>( // participant name
+                        pluginManager: pluginManager,
+                        prefix: namePrefix,
+                        suffix: "Name",
+                        pluginType: typeof(string),
+                        valueFunc: () => Session.ParticipantsByPosition[Position - 1]?.Name,
+                        updateRate: 1000
+                    ),
+                    new Property<object>( // abbreviated participant name
+                        pluginManager: pluginManager,
+                        prefix: namePrefix,
+                        suffix: "AbbreviatedName",
+                        pluginType: typeof(string),
+                        valueFunc: () =>
+                            Session.ParticipantsByPosition[Position - 1]?.AbbreviatedName,
+                        updateRate: 1000
+                    ),
+                    new Property<object>( // current lap number
+                        pluginManager: pluginManager,
+                        prefix: namePrefix,
+                        suffix: "CurrentLapNumber",
+                        pluginType: typeof(int),
+                        valueFunc: () =>
+                            Session.ParticipantsByPosition[Position - 1]?.CurrentLapNumber,
+                        updateRate: 1000
+                    ),
+                    //// participant status ////
+                    new Property<object>( // stint lap
+                        pluginManager: pluginManager,
+                        prefix: namePrefix,
+                        suffix: "StintLap",
+                        pluginType: typeof(float),
+                        valueFunc: () =>
+                            Session
+                                .ParticipantsByPosition[Position - 1]
+                                ?.CurrentTyreSet
+                                ?.LapsSinceFitting,
+                        updateRate: 1000
+                    ),
+                    new Property<object>( // artificial predicted pit lap
+                        pluginManager: pluginManager,
+                        prefix: namePrefix,
+                        suffix: "ArtificialPredictedPitLap",
+                        pluginType: typeof(byte),
+                        valueFunc: () =>
+                            Session
+                                .ParticipantsByPosition[Position - 1]
+                                ?.CurrentTyreSet
+                                ?.ArtificialPredictedPitLap,
+                        updateRate: 1000
+                    ),
+                    new Property<object>( // visual tyre name
+                        pluginManager: pluginManager,
+                        prefix: namePrefix,
+                        suffix: "VisualTyreName",
+                        pluginType: typeof(string),
+                        valueFunc: () =>
+                            Session
+                                .ParticipantsByPosition[Position - 1]
+                                ?.CurrentTyreSet
+                                ?.VisualTyreName,
+                        updateRate: 1000
+                    ),
+                    //// participant pace ////
+                    new Property<object>( // last lap time
+                        pluginManager: pluginManager,
+                        prefix: namePrefix,
+                        suffix: "LastLapTime",
+                        pluginType: typeof(string),
+                        valueFunc: () =>
+                            Session.ParticipantsByPosition[Position - 1]?.LastLapTimeFormatted,
+                        updateRate: 1000
+                    ),
+                    new Property<object>( // average lap time
+                        pluginManager: pluginManager,
+                        prefix: namePrefix,
+                        suffix: "AverageLapTime",
+                        pluginType: typeof(string),
+                        valueFunc: () =>
+                            Session
+                                .ParticipantsByPosition[Position - 1]
+                                ?.LastThreeLapAverageLapTimeFormatted,
+                        updateRate: 1000
+                    ),
+                    new Property<object>( // delta to leader
+                        pluginManager: pluginManager,
+                        prefix: namePrefix,
+                        suffix: "DeltaToLeader",
+                        pluginType: typeof(float),
+                        valueFunc: () =>
+                            Session.ParticipantsByPosition[Position - 1]?.DeltaToLeaderInSeconds,
+                        updateRate: 500
+                    ),
+                    //// participant pit stop ////
+                    new Property<object>( // num pit stops
+                        pluginManager: pluginManager,
+                        prefix: namePrefix,
+                        suffix: "NumPitStops",
+                        pluginType: typeof(byte),
+                        valueFunc: () => Session.ParticipantsByPosition[Position - 1]?.NumPitStops,
+                        updateRate: 1000
+                    ),
+                    new Property<object>( // penalties in seconds
+                        pluginManager: pluginManager,
+                        prefix: namePrefix,
+                        suffix: "PenaltiesInSeconds",
+                        pluginType: typeof(byte),
+                        valueFunc: () =>
+                            Session.ParticipantsByPosition[Position - 1]?.PenaltiesInSeconds,
+                        updateRate: 1000
+                    ),
+                    new Property<object>( // is pitting
+                        pluginManager: pluginManager,
+                        prefix: namePrefix,
+                        suffix: "IsPitting",
+                        pluginType: typeof(bool),
+                        valueFunc: () => Session.ParticipantsByPosition[Position - 1]?.IsPitting,
+                        updateRate: 1000
+                    ),
+                    //// participant damage ////
+                    new Property<object>( // average aero damage
+                        pluginManager: pluginManager,
+                        prefix: namePrefix,
+                        suffix: "AverageAeroDamage",
+                        pluginType: typeof(float),
+                        valueFunc: () =>
+                            Session.ParticipantsByPosition[Position - 1]?.AverageAeroDamage,
+                        updateRate: 1000
+                    ),
+                    new Property<object>( // average engine damage
+                        pluginManager: pluginManager,
+                        prefix: namePrefix,
+                        suffix: "AverageEngineDamage",
+                        pluginType: typeof(float),
+                        valueFunc: () =>
+                            Session.ParticipantsByPosition[Position - 1]?.AverageEngineDamage,
+                        updateRate: 1000
+                    ),
+                }
+            );
         }
     }
 }
