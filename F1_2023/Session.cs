@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CodemastersReader;
 using GameReaderCommon;
+using PluginDeMo_v2.F1_2023.Participants;
 using SimHub.Plugins;
 using F1_2023_Settings = PluginDeMo_v2.F1_2023.Settings;
 using F12023_Packets = CodemastersReader.F12023.Packets;

@@ -1,4 +1,4 @@
-namespace PluginDeMo_v2.F1_2023
+namespace PluginDeMo_v2.F1_2023.Participants
 {
     public class Fuel
     {
@@ -65,7 +65,9 @@ namespace PluginDeMo_v2.F1_2023
                 return;
 
             AverageFuelConsumedPerLap = FuelPerDistance * TrackLength;
-            float fuelAtDistance = FuelRemainingAtDistance(Participant.Session.NumLaps * TrackLength);
+            float fuelAtDistance = FuelRemainingAtDistance(
+                Participant.Session.NumLaps * TrackLength
+            );
             FuelAtEndOfStint = fuelAtDistance / AverageFuelConsumedPerLap;
         }
     }

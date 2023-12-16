@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SimHub.Plugins;
 
-namespace PluginDeMo_v2.F1_2023
+namespace PluginDeMo_v2.F1_2023.Participants
 {
     public class Player
     {

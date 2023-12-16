@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace PluginDeMo_v2.F1_2023
+namespace PluginDeMo_v2.F1_2023.Participants
 {
     public class TyreSet
     {
@@ -66,7 +66,7 @@ namespace PluginDeMo_v2.F1_2023
 
             // artificial predicted pit lap
             byte pitWindowSize = (byte)(PitStopWindowLatestLap - PitStopWindowIdealLap);
-            byte artificialEarliestPitLap = (byte)(PitStopWindowIdealLap - pitWindowSize);
+            byte artificialEarliestPitLap = (byte)(PitStopWindowIdealLap - (pitWindowSize / 2));
             ArtificialPredictedPitLap = (byte)(
                 (byte)
                     Math.Round(
