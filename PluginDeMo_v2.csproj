@@ -66,13 +66,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="F1_2023\Fuel.cs" />
-    <Compile Include="F1_2023\Participant.cs" />
-    <Compile Include="F1_2023\Player.cs" />
+    <Compile Include="F1_2023\Participant\Fuel.cs" />
+    <Compile Include="F1_2023\Participant\Participant.cs" />
+    <Compile Include="F1_2023\Participant\Player.cs" />
+    <Compile Include="F1_2023\Participant\Teammate.cs" />
+    <Compile Include="F1_2023\Participant\TyreSet.cs" />
+    <Compile Include="F1_2023\Telemetry\LogEntry.cs" />
+    <Compile Include="F1_2023\Telemetry\TelemetryLog.cs" />
+    <Compile Include="F1_2023\Telemetry\Tests.cs" />
+    <Compile Include="F1_2023\Telemetry\Settings.cs" />
     <Compile Include="F1_2023\Session.cs" />
     <Compile Include="F1_2023\Settings.cs" />
-    <Compile Include="F1_2023\Teammate.cs" />
-    <Compile Include="F1_2023\TyreSet.cs" />
     <Compile Include="PluginDeMo_v2.cs" />
     <Compile Include="Property.cs" />
     <Compile Include="Settings.cs" />
