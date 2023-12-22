@@ -73,7 +73,6 @@
     <Compile Include="F1_2023\Participant\TyreSet.cs" />
     <Compile Include="F1_2023\Telemetry\LogEntry.cs" />
     <Compile Include="F1_2023\Telemetry\TelemetryLog.cs" />
-    <Compile Include="F1_2023\Telemetry\Tests.cs" />
     <Compile Include="F1_2023\Telemetry\Settings.cs" />
     <Compile Include="F1_2023\Session.cs" />
     <Compile Include="F1_2023\Settings.cs" />
