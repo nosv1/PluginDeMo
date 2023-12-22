@@ -1,7 +1,13 @@
 /.config
 /.vs
 /.vscode
-
 /bin
 /obj
 /packages
+
+Testing/.config
+Testing/.vs
+Testing/.vscode
+Testing/bin
+Testing/obj
+Testing/packages
