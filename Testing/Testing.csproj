@@ -1,0 +1,69 @@
+
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="PluginDeMo_v2">
+      <HintPath>..\bin\Debug\PluginDeMo_v2.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="CodemastersReader">
+      <HintPath>..\bin\Include\CodemastersReader.dll</HintPath>
+      <!-- <HintPath>C:\Program Files (x86)\SimHub\CodemastersReader.dll</HintPath> -->
+    </Reference>
+    <Reference Include="GameReaderCommon">
+      <HintPath>..\bin\Include\GameReaderCommon.dll</HintPath>
+      <!-- <HintPath>C:\Program Files (x86)\SimHub\GameReaderCommon.dll</HintPath> -->
+    </Reference>
+    <Reference Include="log4net, Version=2.0.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a">
+      <HintPath>..\packages\log4net.2.0.15\lib\net45\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <!-- <Reference Include="PresentationFramework" /> -->
+    <Reference Include="SimHub.Logging">
+      <HintPath>..\bin\Include\SimHub.Logging.dll</HintPath>
+      <!-- <HintPath>C:\Program Files (x86)\SimHub\SimHub.Logging.dll</HintPath> -->
+    </Reference>
+    <Reference Include="SimHub.Plugins">
+      <HintPath>..\bin\Include\SimHub.Plugins.dll</HintPath>
+      <!-- <HintPath>C:\Program Files (x86)\SimHub\SimHub.Plugins.dll</HintPath> -->
+    </Reference>
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\F1_2023\Participant\Fuel.cs" />
+    <Compile Include="..\F1_2023\Participant\Participant.cs" />
+    <Compile Include="..\F1_2023\Participant\Player.cs" />
+    <Compile Include="..\F1_2023\Participant\Teammate.cs" />
+    <Compile Include="..\F1_2023\Participant\TyreSet.cs" />
+    <Compile Include="..\F1_2023\Telemetry\LogEntry.cs" />
+    <Compile Include="..\F1_2023\Telemetry\TelemetryLog.cs" />
+    <Compile Include="..\F1_2023\Telemetry\Settings.cs" />
+    <Compile Include="..\F1_2023\Session.cs" />
+    <Compile Include="..\F1_2023\Settings.cs" />
+    <Compile Include="..\PluginDeMo_v2.cs" />
+    <Compile Include="..\Property.cs" />
+    <Compile Include="..\Settings.cs" />
+    <Compile Include="..\Utility.cs" />
+  </ItemGroup>
+
+</Project>
