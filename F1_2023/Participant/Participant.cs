@@ -28,7 +28,11 @@ namespace PluginDeMo_v2.F1_2023.Participants
         public TyreSet PreviousTyreSet { get; set; }
         public Fuel Fuel { get; set; }
         public string Name => Utility.GetStringFromCharArray(ParticipantData.m_name);
-        public string AbbreviatedName => Name.Substring(0, Math.Min(Name.Length, 3)).ToUpper(); // Hamilton -> HAM
+        public string AbbreviatedName =>
+            // split name by space, get last name, get first 3 letters, make uppercase
+            Name.Contains(" ")
+                ? Name.Split(' ').Last().Substring(0, 3).ToUpper() // the player might have a space in the name
+                : Name.Substring(0, Math.Min(3, Name.Length)).ToUpper(); // AI names are just the last names
         public int TeamId => ParticipantData.m_teamId;
 
         // participant status
@@ -57,8 +61,16 @@ namespace PluginDeMo_v2.F1_2023.Participants
         public uint LastLapTime => LapData.m_lastLapTimeInMS; // in ms
         public string LastLapTimeFormatted =>
             Utility.SecondsToTimeString(LastLapTime / 1000f, @"m\:ss\.fff");
-        public uint DeltaToLeader => LapData.m_deltaToRaceLeaderInMS;
-        public float DeltaToLeaderInSeconds => DeltaToLeader / 1000f;
+
+        public const float MINI_SECTOR_DISTANCE = 50; // in m, this splits the lap into segments of some distance except for the last sector
+        public OrderedDictionary TimeAtMiniSector { get; set; } // key is (lap, minisector) value is a seconds timestamp of when the minisector was entered
+        public int CurrentMiniSectorIndex =>
+            (int)Math.Floor(LapData.m_lapDistance / MINI_SECTOR_DISTANCE);
+
+        public Tuple<int, int> CurrentMiniSectorKey =>
+            new Tuple<int, int>(CurrentLapNumber, CurrentMiniSectorIndex);
+
+        public float DeltaToLeaderInSeconds => TryGetDeltaToLeaderInSeconds();
 
         // participant damage
         public float AverageAeroDamage =>
@@ -77,6 +89,8 @@ namespace PluginDeMo_v2.F1_2023.Participants
         {
             Session = session;
             Properties = new List<Property<object>>();
+            TimeAtMiniSector = new OrderedDictionary();
+
             AddProperties(pluginManager, isPlayer: false, index: index);
         }
 
@@ -116,6 +130,7 @@ namespace PluginDeMo_v2.F1_2023.Participants
         {
             LapData = packetLapData;
             CurrentLapNumber = LapData.m_currentLapNum;
+            TryUpdateMiniSectorTime();
         }
 
         public void CarStatusUpdate(F12023_Packets.CarStatusData packetCarStatusData)
@@ -206,6 +221,28 @@ namespace PluginDeMo_v2.F1_2023.Participants
             else if (Fuel == null)
                 Fuel = new Fuel(this);
             Fuel?.Update();
+        }
+
+        /// <summary>
+        /// Updates the mini sector time for the current lap.
+        /// </summary>
+        public void TryUpdateMiniSectorTime()
+        {
+            // this is the key for the current mini sector
+            Tuple<int, int> currentMiniSectorKey = new Tuple<int, int>(
+                LapData.m_currentLapNum,
+                CurrentMiniSectorIndex
+            );
+
+            float sessionTime = Session.PacketLapData.m_header.m_sessionTime;
+
+            // if the current mini sector is not in the dictionary, add it
+            if (!TimeAtMiniSector.Contains(currentMiniSectorKey))
+                TimeAtMiniSector.Add(currentMiniSectorKey, sessionTime);
+            // otherwise update the time
+            // else
+            //     TimeAtMiniSector[currentMiniSectorKey] = sessionTime;
+            // leaving the above commented out only updates the time once the car enters the mini-sector, meaning one update per mini-sector
         }
 
         ///// PROPERTIES /////

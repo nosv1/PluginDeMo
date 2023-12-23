@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using SimHub.Plugins;
@@ -230,10 +230,11 @@ namespace PluginDeMo_v2.F1_2023.Participants
                         suffix: $"{(i + 1).ToString().PadLeft(2, '0')}",
                         pluginType: typeof(float),
                         valueFunc: () =>
-                            Participant
+                            Participant.DeltaToLeaderInSeconds
+                            - Participant
                                 .Session
                                 .ParticipantsByPosition[participant.Index]
-                                .DeltaToLeaderInSeconds - Participant.DeltaToLeaderInSeconds,
+                                .DeltaToLeaderInSeconds,
                         updateRate: 500
                     )
                 );
